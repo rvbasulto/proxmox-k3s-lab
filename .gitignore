@@ -1,0 +1,22 @@
+# Terraform
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/terraform.tfvars
+terraform/crash.log
+terraform/crash.*.log
+terraform/override.tf
+terraform/override.tf.json
+terraform/*_override.tf
+terraform/*_override.tf.json
+terraform/.terraform.lock.hcl
+
+# Ansible
+ansible/*.retry
+ansible/.ansible/
+
+# Editors and OS
+.DS_Store
+*.swp
+*.swo
+*.tmp
