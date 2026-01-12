@@ -1,0 +1,17 @@
+- name: Prepare all nodes
+  hosts: k3s
+  become: true
+  roles:
+    - common
+
+- name: Configure k3s server
+  hosts: k3s_server
+  become: true
+  roles:
+    - k3s-server
+
+- name: Configure k3s agents
+  hosts: k3s_agents
+  become: true
+  roles:
+    - k3s-agent

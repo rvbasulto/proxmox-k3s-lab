@@ -1,0 +1,5 @@
+common_packages:
+  - ca-certificates
+  - curl
+  - gnupg
+  - apt-transport-https

@@ -1,0 +1,13 @@
+- name: Install k3s server
+  ansible.builtin.shell: |
+    curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="{{ k3s_version }}" sh -s - {{ k3s_server_args }}
+  args:
+    creates: /usr/local/bin/k3s
+  become: true
+
+- name: Ensure k3s server service is enabled and running
+  ansible.builtin.systemd:
+    name: k3s
+    enabled: true
+    state: started
+  become: true
