@@ -69,7 +69,7 @@ variable "vm_disk_gb" {
 variable "vm_storage" {
   description = "Proxmox storage backend for disks and cloud-init."
   type        = string
-  default     = "local-lvm" ###shared-nfs local-lvm
+  default     = "local-lvm" # shared-nfs or local-lvm
 }
 
 variable "vm_bridge" {

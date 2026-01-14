@@ -10,19 +10,19 @@ resource "proxmox_vm_qemu" "k3s" {
   clone       = var.template_name
   full_clone  = true
 
-  # Cloud-init y Agent
+  # Cloud-init and agent
   os_type = "cloud-init"
   agent   = 1
 
-  # PROBLEMA: 120 segundos es muy poco si cloud-init tarda en configurar DHCP
-  # SOLUCIÓN: Aumentar timeout O no esperar por IP
-  #agent_timeout = 300 # 5 minutos
+  # Problem: 120 seconds is too short if cloud-init takes time to configure DHCP
+  # Fix: increase timeout or do not wait for IP
+  #agent_timeout = 300 # 5 minutes
 
-  # NUEVO: Esperar más después de clonar y antes de iniciar
+  # New: wait longer after cloning and before starting
   #clone_wait      = 15
   #additional_wait = 10
 
-  # Recursos
+  # Resources
   memory = var.vm_memory_mb
 
 
@@ -30,10 +30,10 @@ resource "proxmox_vm_qemu" "k3s" {
   cpu {
     cores   = var.vm_cores
     sockets = var.vm_sockets
-    type    = "host" # MEJORA: Mejor rendimiento
+    type    = "host" # Improvement: better performance
   }
 
-  # Disco
+  # Disk
   scsihw   = "virtio-scsi-pci"
   bootdisk = "scsi0"
 
@@ -42,7 +42,7 @@ resource "proxmox_vm_qemu" "k3s" {
     size    = "${var.vm_disk_gb}G"
     type    = "disk"
     storage = var.vm_storage
-    # MEJORA: Habilitar iothread para mejor I/O
+    # Improvement: enable iothread for better I/O
     iothread = true
   }
 
@@ -55,7 +55,7 @@ resource "proxmox_vm_qemu" "k3s" {
     id   = 0
     type = "socket"
   }
-  # Red
+  # Network
   network {
     id        = 0
     model     = "virtio"
@@ -70,16 +70,16 @@ resource "proxmox_vm_qemu" "k3s" {
   ciuser    = var.vm_user
   sshkeys   = var.ssh_public_key
 
-  # Configuración adicional
+  # Additional configuration
   onboot = true
   tags   = "k3s,${each.value.role}"
 
-  # MEJORA: Ignorar cambios en red después de crear
-  # Evita que Terraform intente "arreglar" cosas que cloud-init cambia
+  # Improvement: ignore network changes after creation
+  # Prevent Terraform from trying to "fix" changes made by cloud-init
   lifecycle {
     ignore_changes = [
       network,
-      disk, # Evita problemas si el disco crece
+      disk, # Prevent issues if the disk grows
     ]
   }
 }
