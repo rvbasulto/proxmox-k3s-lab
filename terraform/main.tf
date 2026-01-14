@@ -1,6 +1,12 @@
+locals {
+  k3s_nodes = { for node in var.k3s_nodes : node.name => node }
+}
+
 resource "proxmox_vm_qemu" "k3s" {
-  name        = var.vm_name
-  target_node = var.vm_target_node
+  for_each = local.k3s_nodes
+
+  name        = each.value.name
+  target_node = each.value.target_node
   clone       = var.template_name
   full_clone  = true
 
@@ -66,7 +72,7 @@ resource "proxmox_vm_qemu" "k3s" {
 
   # Configuración adicional
   onboot = true
-  tags   = "k3s,server"
+  tags   = "k3s,${each.value.role}"
 
   # MEJORA: Ignorar cambios en red después de crear
   # Evita que Terraform intente "arreglar" cosas que cloud-init cambia

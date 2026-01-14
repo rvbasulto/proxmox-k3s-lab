@@ -7,9 +7,6 @@ proxmox_api_timeout      = 600
 template_name  = "ubuntu-2404-cloudinit-template"
 ssh_public_key = "ssh-ed25519 AAAA..."
 
-vm_name        = "k3s-server-01"
-vm_target_node = "pve"
-
 vm_cores     = 2
 vm_memory_mb = 4096
 vm_disk_gb   = 30

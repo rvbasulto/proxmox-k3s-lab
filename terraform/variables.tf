@@ -78,14 +78,28 @@ variable "vm_bridge" {
   default     = "vmbr0"
 }
 
-variable "vm_name" {
-  description = "Name of the single VM to provision."
-  type        = string
-  default     = "k3s-server-01"
-}
-
-variable "vm_target_node" {
-  description = "Proxmox node where the VM will be created."
-  type        = string
-  default     = "pve"
+variable "k3s_nodes" {
+  description = "Definition of k3s VMs to provision."
+  type = list(object({
+    name        = string
+    target_node = string
+    role        = string
+  }))
+  default = [
+    {
+      name        = "k3s-server-01"
+      target_node = "pve"
+      role        = "server"
+    },
+    {
+      name        = "k3s-agent-01"
+      target_node = "pve02"
+      role        = "agent"
+    },
+    {
+      name        = "k3s-agent-02"
+      target_node = "pve03"
+      role        = "agent"
+    }
+  ]
 }
