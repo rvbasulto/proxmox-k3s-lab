@@ -43,7 +43,7 @@ resource "proxmox_vm_qemu" "k3s" {
     type    = "disk"
     storage = var.vm_storage
     # Improvement: enable iothread for better I/O
-    iothread = true
+    #iothread = true
   }
 
   disk {
