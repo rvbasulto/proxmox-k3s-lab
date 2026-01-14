@@ -2,6 +2,7 @@ proxmox_api_url          = "https://pve.example:8006/api2/json"
 proxmox_api_token_id     = "terraform@pve!terraform"
 proxmox_api_token_secret = "REPLACE_ME"
 proxmox_tls_insecure     = true
+proxmox_api_timeout      = 600
 
 template_name  = "ubuntu-2404-cloudinit-template"
 ssh_public_key = "ssh-ed25519 AAAA..."

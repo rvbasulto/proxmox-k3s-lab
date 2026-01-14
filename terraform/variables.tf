@@ -1,5 +1,5 @@
 variable "proxmox_api_url" {
-  description = "Proxmox API endpoint, e.g. https://pve.example:8006/api2/json."
+  description = "Proxmox API endpoint, e.g. https://pve.local:8006/api2/json."
   type        = string
 }
 
@@ -18,6 +18,12 @@ variable "proxmox_tls_insecure" {
   description = "Allow insecure TLS connections to the Proxmox API."
   type        = bool
   default     = false
+}
+
+variable "proxmox_api_timeout" {
+  description = "Timeout in seconds for Proxmox API requests."
+  type        = number
+  default     = 600
 }
 
 variable "template_name" {
@@ -63,7 +69,7 @@ variable "vm_disk_gb" {
 variable "vm_storage" {
   description = "Proxmox storage backend for disks and cloud-init."
   type        = string
-  default     = "local-lvm"
+  default     = "local-lvm" ###shared-nfs local-lvm
 }
 
 variable "vm_bridge" {
