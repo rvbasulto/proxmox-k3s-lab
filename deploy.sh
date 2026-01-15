@@ -32,7 +32,7 @@ log() {
 
 require_cmd() {
   if ! command -v "$1" >/dev/null 2>&1; then
-    echo "Falta el comando requerido: $1" >&2
+    echo "Missing required command: $1" >&2
     exit 1
   fi
 }
@@ -163,7 +163,7 @@ if [ -z "$SSH_PRIVATE_KEY" ]; then
 fi
 
 if [ -z "$SSH_PRIVATE_KEY" ] && [ -z "${SSH_AUTH_SOCK:-}" ]; then
-  log "Aviso: no se detecto llave SSH ni SSH_AUTH_SOCK; Ansible puede fallar por permisos."
+  log "Warning: no SSH key or SSH_AUTH_SOCK detected; Ansible may fail due to permissions."
 fi
 
 outputs_file="$(mktemp)"
@@ -178,7 +178,7 @@ log "Terraform apply..."
 terraform -chdir="$TF_DIR" apply -auto-approve
 tf_end="$(date +%s)"
 
-log "Esperando IPs reportadas por el guest agent..."
+log "Waiting for IPs reported by the guest agent..."
 waited=0
 total=0
 missing=0
@@ -195,7 +195,7 @@ while true; do
   done < <(parse_outputs "$outputs_file" "$hosts_block")
 
   if [ "$total" -eq 0 ]; then
-    echo "No se encontraron VMs en los outputs de Terraform." >&2
+    echo "No VMs found in Terraform outputs." >&2
     exit 1
   fi
 
@@ -204,20 +204,20 @@ while true; do
   fi
 
   if [ "$waited" -ge "$IP_WAIT_SECONDS" ]; then
-    echo "Timeout esperando IPs. Faltan: $missing_names" >&2
+    echo "Timed out waiting for IPs. Missing: $missing_names" >&2
     exit 1
   fi
 
-  log "Aun faltan IPs: $missing_names. Reintentando en ${IP_WAIT_INTERVAL}s..."
+  log "Still missing IPs: $missing_names. Retrying in ${IP_WAIT_INTERVAL}s..."
   sleep "$IP_WAIT_INTERVAL"
   waited=$((waited + IP_WAIT_INTERVAL))
 done
 
-log "Actualizando /etc/hosts..."
+log "Updating /etc/hosts..."
 update_hosts "$hosts_block"
 
 ansible_start="$(date +%s)"
-log "Ejecutando Ansible..."
+log "Running Ansible..."
 ANSIBLE_KEY_ARGS=()
 if [ -n "$SSH_PRIVATE_KEY" ]; then
   ANSIBLE_KEY_ARGS=(--private-key "$SSH_PRIVATE_KEY")
@@ -230,7 +230,7 @@ if [ -n "$TF_VM_USER" ]; then
 fi
 
 if [ "${#ANSIBLE_RUN_CMD[@]}" -gt 0 ]; then
-  log "Detectado sudo. Ansible se ejecutara como $SUDO_USER para usar sus llaves SSH."
+  log "sudo detected. Ansible will run as $SUDO_USER to use their SSH keys."
   "${ANSIBLE_RUN_CMD[@]}" env ANSIBLE_CONFIG="$ANSIBLE_DIR/ansible.cfg" \
     ansible-playbook -i "$ANSIBLE_DIR/inventory/hosts.ini" "$ANSIBLE_DIR/site.yml" \
     "${ANSIBLE_KEY_ARGS[@]}" "${ANSIBLE_USER_ARGS[@]}"
@@ -245,9 +245,9 @@ END_TS="$(date +%s)"
 END_HUMAN="$(date +"%Y-%m-%d %H:%M:%S %Z")"
 
 echo
-echo "=== Resumen ==="
-echo "Inicio:  $START_HUMAN"
-echo "Fin:     $END_HUMAN"
+echo "=== Summary ==="
+echo "Start:   $START_HUMAN"
+echo "End:     $END_HUMAN"
 echo "Total:   $(format_duration $((END_TS - START_TS)))"
 echo "Terraform: $(format_duration $((tf_end - tf_start)))"
 echo "Ansible:   $(format_duration $((ansible_end - ansible_start)))"

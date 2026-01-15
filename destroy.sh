@@ -28,7 +28,7 @@ log() {
 
 require_cmd() {
   if ! command -v "$1" >/dev/null 2>&1; then
-    echo "Falta el comando requerido: $1" >&2
+    echo "Missing required command: $1" >&2
     exit 1
   fi
 }
@@ -138,14 +138,14 @@ log "Terraform destroy..."
 terraform -chdir="$TF_DIR" destroy -auto-approve
 destroy_end="$(date +%s)"
 
-log "Limpiando /etc/hosts..."
+log "Cleaning /etc/hosts..."
 remove_hosts_block
 
-log "Limpiando known_hosts..."
+log "Cleaning known_hosts..."
 clean_known_hosts "$targets_file"
 
 if [ "${CLEAN_TERRAFORM:-}" = "1" ]; then
-  log "Eliminando estado local de Terraform..."
+  log "Removing local Terraform state..."
   rm -f "$TF_DIR/terraform.tfstate" "$TF_DIR/terraform.tfstate.backup"
   rm -rf "$TF_DIR/.terraform" "$TF_DIR/.terraform.lock.hcl"
 fi
@@ -154,13 +154,13 @@ END_TS="$(date +%s)"
 END_HUMAN="$(date +"%Y-%m-%d %H:%M:%S %Z")"
 
 echo
-echo "=== Resumen ==="
-echo "Inicio:   $START_HUMAN"
-echo "Fin:      $END_HUMAN"
+echo "=== Summary ==="
+echo "Start:    $START_HUMAN"
+echo "End:      $END_HUMAN"
 echo "Total:    $(format_duration $((END_TS - START_TS)))"
 echo "Destroy:  $(format_duration $((destroy_end - destroy_start)))"
 if [ -s "$targets_file" ]; then
-  echo "Hosts limpiados:"
+  echo "Cleaned hosts:"
   while IFS= read -r target; do
     [ -z "$target" ] && continue
     echo "  - $target"
