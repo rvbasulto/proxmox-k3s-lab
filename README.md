@@ -37,6 +37,30 @@ This repository provisions a reproducible 3-node k3s cluster on Proxmox using Te
    ansible-playbook site.yml
    ```
 
+## One-command deploy
+
+Use the helper script to run Terraform, update `/etc/hosts`, and execute Ansible:
+
+```bash
+./deploy.sh
+```
+
+Note: it uses `sudo` to update `/etc/hosts` on your local machine.
+
+## One-command destroy
+
+Use the helper script to destroy everything and clean local host entries:
+
+```bash
+./destroy.sh
+```
+
+Optional: remove local Terraform state and plugin cache:
+
+```bash
+CLEAN_TERRAFORM=1 ./destroy.sh
+```
+
 ## Notes
 
 - All VMs are cloned from the same template, use `vmbr0` with DHCP, and store disks on `local-lvm`.
