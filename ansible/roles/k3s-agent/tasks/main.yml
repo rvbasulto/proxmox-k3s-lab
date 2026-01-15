@@ -25,3 +25,31 @@
     enabled: true
     state: started
   become: true
+
+- name: Wait for agent node to register in the cluster
+  ansible.builtin.command: >
+    kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml get node {{ inventory_hostname }}
+  register: k3s_node_check
+  until: k3s_node_check.rc == 0
+  retries: 30
+  delay: 10
+  delegate_to: "{{ groups['k3s_server'][0] }}"
+  become: true
+  changed_when: false
+
+- name: Check worker label on agent node
+  ansible.builtin.command: >
+    kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml get node {{ inventory_hostname }}
+    -o jsonpath='{.metadata.labels.node-role\\.kubernetes\\.io/worker}'
+  register: k3s_worker_label
+  delegate_to: "{{ groups['k3s_server'][0] }}"
+  become: true
+  changed_when: false
+
+- name: Label agent node as worker
+  ansible.builtin.command: >
+    kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml label node {{ inventory_hostname }}
+    node-role.kubernetes.io/worker=true --overwrite
+  when: k3s_worker_label.stdout | trim != "true"
+  delegate_to: "{{ groups['k3s_server'][0] }}"
+  become: true
